@@ -1,9 +1,13 @@
 import * as Blockly from "blockly";
+import * as BlocklyMsgUk from "blockly/msg/uk";
+import * as BlocklyMsgEn from "blockly/msg/en";
 import { blocks } from "./blocks/computcraft";
 import { forBlock } from "./generators/lua";
 import { luaGenerator } from "blockly/lua";
 import { save, load } from "./serialization";
-import { toolbox } from "./toolbox";
+import { buildToolbox } from "./toolbox";
+import { uk } from "./i18n/uk";
+import { en } from "./i18n/en";
 import Prism from "prismjs";
 import "./prismjs/prism-lua.js";
 import "./prismjs/prism-dark.css";
@@ -21,12 +25,62 @@ const version = "1.1.6";
 const date = new Date().toUTCString();
 
 
+// Language setup
+const LANGS = { uk, en };
+const BLOCKLY_MSGS = { uk: BlocklyMsgUk, en: BlocklyMsgEn };
+const lang = localStorage.getItem('cctweak_lang') || 'uk';
+const dict = LANGS[lang] || uk;
+Blockly.setLocale(BLOCKLY_MSGS[lang].default || BLOCKLY_MSGS[lang]);
+
+// Apply UI translations
+document.querySelectorAll('[data-i18n]').forEach((el) => {
+  const path = el.getAttribute('data-i18n').split('.');
+  let val = dict;
+  for (const k of path) val = val?.[k];
+  if (typeof val === 'string') el.textContent = val;
+});
+
+// Translate custom turtle/cc blocks using current dict
+const D = dict.blockly;
+const dirUp = [
+  [D.TURTLE_DIR_FORWARD, ""],
+  [D.TURTLE_DIR_UP, "Up"],
+  [D.TURTLE_DIR_DOWN, "Down"],
+];
+const moveDirs = [
+  [D.TURTLE_MOVE_FORWARD, "forward"],
+  [D.TURTLE_MOVE_UP, "up"],
+  [D.TURTLE_MOVE_DOWN, "down"],
+  [D.TURTLE_MOVE_BACK, "back"],
+  [D.TURTLE_MOVE_LEFT, "turnLeft"],
+  [D.TURTLE_MOVE_RIGHT, "turnRight"],
+];
+const patch = (type, message0, dirOpts) => {
+  const b = blocks[type];
+  if (!b) return;
+  if (message0) b.message0 = message0;
+  if (dirOpts && b.args0) {
+    const dd = b.args0.find((a) => a.type === "field_dropdown" && a.name === "DIR");
+    if (dd) dd.options = dirOpts;
+  }
+};
+patch("turtle_move", D.TURTLE_MOVE, moveDirs);
+patch("turtle_dig", D.TURTLE_DIG, dirUp);
+patch("turtle_build", D.TURTLE_BUILD, dirUp);
+patch("turtle_detect", D.TURTLE_DETECT, dirUp);
+patch("turtle_drop", D.TURTLE_DROP, dirUp);
+patch("turtle_select", D.TURTLE_SELECT);
+patch("print", D.CC_PRINT);
+patch("write", D.CC_WRITE);
+patch("read", D.CC_READ);
+patch("sleep", D.CC_SLEEP);
+
 Blockly.common.defineBlocks(blocks);
 Object.assign(luaGenerator.forBlock, forBlock);
 
 const codeDiv = document.getElementById("generatedCode").firstChild;
 const blocklyDiv = document.getElementById("blocklyDiv");
-const ws = Blockly.inject(blocklyDiv, { toolbox });
+const ws = Blockly.inject(blocklyDiv, { toolbox: buildToolbox(dict) });
 
 ws.addChangeListener(shadowBlockConversionChangeListener);
 
@@ -254,9 +308,9 @@ const uploadToMinecraft = async () => {
   const name = (fileName.value || 'program').replace(/[^a-zA-Z0-9_\-]/g, '') + '.lua';
   const code = luaGenerator.workspaceToCode(ws);
 
-  if (!code.trim()) { statusEl.textContent = '⚠️ Порожній код'; return; }
+  if (!code.trim()) { statusEl.textContent = dict.ui.emptyCode; return; }
 
-  statusEl.textContent = '⏳ Надсилаю…';
+  statusEl.textContent = dict.ui.uploading;
   try {
     const r = await fetch('/api/upload', {
       method: 'POST',
@@ -270,6 +324,15 @@ const uploadToMinecraft = async () => {
 };
 
 document.getElementById('uploadMcButton').onclick = uploadToMinecraft;
+
+// Language switcher
+const langSelect = document.getElementById('langSelect');
+langSelect.value = lang;
+langSelect.onchange = () => {
+  localStorage.setItem('cctweak_lang', langSelect.value);
+  location.reload();
+};
+
 
 // Persist server/computer selection
 const serverSel = document.getElementById('serverId');

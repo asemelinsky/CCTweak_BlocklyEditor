@@ -6,12 +6,12 @@
 const shadowNum = (n) => ({ shadow: { type: "math_number", fields: { NUM: n } } });
 const shadowText = (t) => ({ shadow: { type: "text", fields: { TEXT: t } } });
 
-export const toolbox = {
+export const buildToolbox = (dict) => ({
   kind: "categoryToolbox",
   contents: [
     {
       kind: "category",
-      name: "🚶 Рух",
+      name: dict.categories.movement,
       categorystyle: "turtle_category",
       contents: [
         { kind: "block", type: "turtle_move", inputs: { TIMES: shadowNum(1) } },
@@ -19,7 +19,7 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "🧱 Будова",
+      name: dict.categories.build,
       categorystyle: "turtle_category",
       contents: [
         { kind: "block", type: "turtle_build" },
@@ -31,7 +31,7 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "🔁 Цикли",
+      name: dict.categories.loops,
       categorystyle: "loop_category",
       contents: [
         { kind: "block", type: "controls_repeat_ext", inputs: { TIMES: shadowNum(10) } },
@@ -45,7 +45,7 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "🔀 Логіка",
+      name: dict.categories.logic,
       categorystyle: "logic_category",
       contents: [
         { kind: "block", type: "controls_if" },
@@ -57,7 +57,7 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "➕ Математика",
+      name: dict.categories.math,
       categorystyle: "math_category",
       contents: [
         { kind: "block", type: "math_number", fields: { NUM: 0 } },
@@ -75,7 +75,7 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "📝 Текст",
+      name: dict.categories.text,
       categorystyle: "text_category",
       contents: [
         { kind: "block", type: "text" },
@@ -87,15 +87,15 @@ export const toolbox = {
     },
     {
       kind: "category",
-      name: "📦 Змінні",
+      name: dict.categories.variables,
       categorystyle: "variable_category",
       custom: "VARIABLE",
     },
     {
       kind: "category",
-      name: "🔧 Функції",
+      name: dict.categories.functions,
       categorystyle: "procedure_category",
       custom: "PROCEDURE",
     },
   ],
-};
+});
