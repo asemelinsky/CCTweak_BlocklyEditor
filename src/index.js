@@ -14,7 +14,7 @@ import {shadowBlockConversionChangeListener} from '@blockly/shadow-block-convert
 
 Prism.highlightAll();
 
-const secret = require('./secret.json');
+// const secret = require('./secret.json');  // removed: pastebin integration unused
 
 // Variables
 const version = "1.1.6";
@@ -246,6 +246,38 @@ const loadWorkspace = () => {
 //  xhr.send(`api_dev_key=${secret['api_dev_key']}&api_user_name=${username}&api_user_password=${password}`);
 //}
 
+
+const uploadToMinecraft = async () => {
+  const statusEl = document.getElementById('uploadStatus');
+  const serverId = document.getElementById('serverId').value;
+  const comp = document.getElementById('computerId').value;
+  const name = (fileName.value || 'program').replace(/[^a-zA-Z0-9_\-]/g, '') + '.lua';
+  const code = luaGenerator.workspaceToCode(ws);
+
+  if (!code.trim()) { statusEl.textContent = '⚠️ Порожній код'; return; }
+
+  statusEl.textContent = '⏳ Надсилаю…';
+  try {
+    const r = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, comp, fileName: name, serverId }),
+    });
+    statusEl.textContent = await r.text();
+  } catch (err) {
+    statusEl.textContent = '❌ ' + err.message;
+  }
+};
+
+document.getElementById('uploadMcButton').onclick = uploadToMinecraft;
+
+// Persist server/computer selection
+const serverSel = document.getElementById('serverId');
+const compInput = document.getElementById('computerId');
+serverSel.value = localStorage.getItem('cctweak_server') || 'server2';
+compInput.value = localStorage.getItem('cctweak_comp') || '0';
+serverSel.onchange = () => localStorage.setItem('cctweak_server', serverSel.value);
+compInput.onchange = () => localStorage.setItem('cctweak_comp', compInput.value);
 
 copyButton.onclick = copyCode;
 downloadButton.onclick = downloadWorkspace;
