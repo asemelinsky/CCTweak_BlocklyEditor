@@ -2686,7 +2686,7 @@ const pr_getpaperlevel = {
 // Create the block definitions for the JSON-only blocks.
 // This does not register their definitions with Blockly.
 // This file has no side effects!
-export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
+export const blockJsonArray = [
   table,
   table_get,
   table_set,
@@ -2845,4 +2845,4 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   pr_setpagetitle,
   pr_getinklevel,
   pr_getpaperlevel,
-]);
+];

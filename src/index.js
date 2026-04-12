@@ -1,7 +1,7 @@
 import * as Blockly from "blockly";
 import * as BlocklyMsgUk from "blockly/msg/uk";
 import * as BlocklyMsgEn from "blockly/msg/en";
-import { blocks } from "./blocks/computcraft";
+import { blockJsonArray } from "./blocks/computcraft";
 import { forBlock } from "./generators/lua";
 import { luaGenerator } from "blockly/lua";
 import { save, load } from "./serialization";
@@ -40,7 +40,7 @@ document.querySelectorAll('[data-i18n]').forEach((el) => {
   if (typeof val === 'string') el.textContent = val;
 });
 
-// Translate custom turtle/cc blocks using current dict
+// Translate custom turtle/cc blocks by mutating raw JSON before compilation
 const D = dict.blockly;
 const dirUp = [
   [D.TURTLE_DIR_FORWARD, ""],
@@ -56,7 +56,7 @@ const moveDirs = [
   [D.TURTLE_MOVE_RIGHT, "turnRight"],
 ];
 const patch = (type, message0, dirOpts) => {
-  const b = blocks[type];
+  const b = blockJsonArray.find((x) => x.type === type);
   if (!b) return;
   if (message0) b.message0 = message0;
   if (dirOpts && b.args0) {
@@ -75,6 +75,7 @@ patch("write", D.CC_WRITE);
 patch("read", D.CC_READ);
 patch("sleep", D.CC_SLEEP);
 
+const blocks = Blockly.common.createBlockDefinitionsFromJsonArray(blockJsonArray);
 Blockly.common.defineBlocks(blocks);
 Object.assign(luaGenerator.forBlock, forBlock);
 
