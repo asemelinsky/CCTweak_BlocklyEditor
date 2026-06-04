@@ -310,7 +310,7 @@ forBlock["turtle_dig"] = function (block, generator) {
 };
 forBlock["turtle_build"] = function (block, generator) {
   const dir = block.getFieldValue("DIR");
-  return `turtle.build${dir}()\n`;
+  return `turtle.place${dir}()\n`;
 };
 forBlock["turtle_compare"] = function (block, generator) {
   const dir = block.getFieldValue("DIR");
