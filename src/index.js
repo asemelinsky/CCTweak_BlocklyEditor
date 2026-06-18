@@ -70,6 +70,9 @@ patch("turtle_build", D.TURTLE_BUILD, dirUp);
 patch("turtle_detect", D.TURTLE_DETECT, dirUp);
 patch("turtle_drop", D.TURTLE_DROP, dirUp);
 patch("turtle_select", D.TURTLE_SELECT);
+patch("turtle_getitemcount", D.TURTLE_GETITEMCOUNT);
+patch("turtle_blockname", D.TURTLE_BLOCKNAME, dirUp);
+patch("turtle_select_next_nonempty", D.TURTLE_SELECT_NEXT_NONEMPTY);
 patch("print", D.CC_PRINT);
 patch("write", D.CC_WRITE);
 patch("read", D.CC_READ);
@@ -302,29 +305,159 @@ const loadWorkspace = () => {
 //}
 
 
+const BLOCKLY_MARKER = '-- BLOCKLY_STATE:';
+
+const utf8ToBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
+const base64ToUtf8 = (str) => decodeURIComponent(escape(atob(str)));
+
+const embedBlocklyState = (code) => {
+  const state = save(ws);
+  return `${BLOCKLY_MARKER}${utf8ToBase64(state)}\n${code}`;
+};
+
+const extractBlocklyState = (text) => {
+  const firstNewline = text.indexOf('\n');
+  const firstLine = firstNewline === -1 ? text : text.slice(0, firstNewline);
+  if (!firstLine.startsWith(BLOCKLY_MARKER)) {
+    return { state: null, code: text };
+  }
+  try {
+    const b64 = firstLine.slice(BLOCKLY_MARKER.length).trim();
+    const state = base64ToUtf8(b64);
+    const code = firstNewline === -1 ? '' : text.slice(firstNewline + 1);
+    return { state, code };
+  } catch {
+    return { state: null, code: text };
+  }
+};
+
+const getServerPayload = () => ({ serverId: document.getElementById('serverId').value });
+
 const uploadToMinecraft = async () => {
   const statusEl = document.getElementById('uploadStatus');
-  const serverId = document.getElementById('serverId').value;
   const comp = document.getElementById('computerId').value;
   const name = (fileName.value || 'program').replace(/[^a-zA-Z0-9_\-]/g, '') + '.lua';
   const code = luaGenerator.workspaceToCode(ws);
 
   if (!code.trim()) { statusEl.textContent = dict.ui.emptyCode; return; }
 
+  const payloadCode = embedBlocklyState(code);
   statusEl.textContent = dict.ui.uploading;
   try {
     const r = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, comp, fileName: name, serverId }),
+      body: JSON.stringify({ code: payloadCode, comp, fileName: name, ...getServerPayload() }),
     });
     statusEl.textContent = await r.text();
+    if (r.ok) refreshFileList();
   } catch (err) {
     statusEl.textContent = '❌ ' + err.message;
   }
 };
 
 document.getElementById('uploadMcButton').onclick = uploadToMinecraft;
+
+// ==================== FILE LIST ====================
+const fileListEl = document.getElementById('fileList');
+const fileListStatus = document.getElementById('fileListStatus');
+let currentServerFile = null;
+
+const setListMessage = (text, cls = 'file-list-empty') => {
+  fileListEl.innerHTML = '';
+  const li = document.createElement('li');
+  li.className = cls;
+  li.textContent = text;
+  fileListEl.appendChild(li);
+};
+
+async function refreshFileList() {
+  const comp = document.getElementById('computerId').value.trim();
+  if (!comp) { setListMessage(dict.ui.noData); return; }
+  setListMessage(dict.ui.loading);
+  fileListStatus.textContent = '';
+  try {
+    const r = await fetch('/api/list_files', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comp, ...getServerPayload() }),
+    });
+    const data = await r.json();
+    if (data.error) { setListMessage('❌ ' + data.error); return; }
+    if (!data.files || !data.files.length) { setListMessage(dict.ui.empty); return; }
+    renderFiles(data.files, comp);
+  } catch (err) {
+    setListMessage('❌ ' + err.message);
+  }
+}
+
+function renderFiles(files, comp) {
+  fileListEl.innerHTML = '';
+  files.forEach((f) => {
+    const li = document.createElement('li');
+    if (f === currentServerFile) li.classList.add('active');
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'file-name';
+    nameSpan.textContent = f;
+    nameSpan.onclick = () => loadFileFromServer(comp, f);
+    const delBtn = document.createElement('button');
+    delBtn.className = 'file-delete-btn';
+    delBtn.textContent = '\u00d7';
+    delBtn.title = dict.ui.confirmDelete;
+    delBtn.onclick = (e) => { e.stopPropagation(); deleteFileFromServer(comp, f); };
+    li.appendChild(nameSpan);
+    li.appendChild(delBtn);
+    fileListEl.appendChild(li);
+  });
+}
+
+async function loadFileFromServer(comp, file) {
+  fileListStatus.textContent = dict.ui.loading;
+  try {
+    const r = await fetch('/api/list_files', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comp, file, ...getServerPayload() }),
+    });
+    const data = await r.json();
+    if (data.error) { fileListStatus.textContent = '❌ ' + data.error; return; }
+    const { state, code } = extractBlocklyState(data.content);
+    const baseName = data.name.replace(/\.lua$/, '');
+    fileName.value = baseName;
+    currentServerFile = data.name;
+    if (state) {
+      ws.clear();
+      load(ws, state);
+      fileListStatus.textContent = dict.ui.loadedFromServer;
+    } else {
+      codeDiv.textContent = code;
+      Prism.highlightElement(codeDiv);
+      fileListStatus.textContent = dict.ui.noBlockState;
+    }
+    refreshFileList();
+  } catch (err) {
+    fileListStatus.textContent = '❌ ' + err.message;
+  }
+}
+
+async function deleteFileFromServer(comp, file) {
+  if (!confirm(`${dict.ui.confirmDelete}: "${file}"?`)) return;
+  try {
+    const r = await fetch('/api/list_files', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comp, file, action: 'delete', ...getServerPayload() }),
+    });
+    const data = await r.json();
+    if (data.error) { fileListStatus.textContent = '❌ ' + data.error; return; }
+    if (currentServerFile === file) currentServerFile = null;
+    refreshFileList();
+  } catch (err) {
+    fileListStatus.textContent = '❌ ' + err.message;
+  }
+}
+
+document.getElementById('refreshFilesBtn').onclick = refreshFileList;
 
 // Language switcher
 const langSelect = document.getElementById('langSelect');

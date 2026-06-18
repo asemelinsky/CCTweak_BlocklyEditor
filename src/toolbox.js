@@ -24,8 +24,11 @@ export const buildToolbox = (dict) => ({
       contents: [
         { kind: "block", type: "turtle_build" },
         { kind: "block", type: "turtle_dig" },
-        { kind: "block", type: "turtle_select" },
+        { kind: "block", type: "turtle_select", inputs: { NUM: shadowNum(1) } },
+        { kind: "block", type: "turtle_select_next_nonempty" },
         { kind: "block", type: "turtle_detect" },
+        { kind: "block", type: "turtle_getitemcount", inputs: { SLOT: shadowNum(0) } },
+        { kind: "block", type: "turtle_blockname" },
         { kind: "block", type: "turtle_drop" },
       ],
     },

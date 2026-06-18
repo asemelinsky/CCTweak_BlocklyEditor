@@ -11,6 +11,14 @@ export const uk = {
     upload: "📤 Надіслати на Minecraft",
     uploading: "⏳ Надсилаю…",
     emptyCode: "⚠️ Порожній код",
+    filesOnServer: "Файли на сервері",
+    refresh: "Оновити список",
+    noData: "(немає даних)",
+    empty: "(порожньо)",
+    loading: "Завантаження…",
+    confirmDelete: "Видалити",
+    noBlockState: "⚠️ Файл без блочної структури — блоки не відновлено, завантажено тільки код.",
+    loadedFromServer: "✅ Завантажено з сервера",
   },
 
   // Toolbox categories
@@ -44,6 +52,9 @@ export const uk = {
     TURTLE_SELECT: "Вибрати слот #%1",
     TURTLE_DETECT: "Чи є блок %1?",
     TURTLE_DROP: "Викинути %1 %2 предмет(ів)",
+    TURTLE_GETITEMCOUNT: "Кількість у слоті %1",
+    TURTLE_BLOCKNAME: "Назва блоку %1",
+    TURTLE_SELECT_NEXT_NONEMPTY: "Якщо поточний слот пустий → наступний з предметами",
 
     CC_PRINT: "вивести %1",
     CC_WRITE: "написати %1",

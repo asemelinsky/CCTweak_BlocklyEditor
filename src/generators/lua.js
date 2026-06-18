@@ -374,6 +374,41 @@ forBlock["turtle_select"] = function (block, generator) {
   const num = generator.valueToCode(block, "NUM", Order.NONE) || "1";
   return `turtle.select(${num})\n`;
 };
+forBlock["turtle_getitemcount"] = function (block, generator) {
+  const slot = generator.valueToCode(block, "SLOT", Order.NONE) || "";
+  return [`turtle.getItemCount(${slot})`, Order.NONE];
+};
+forBlock["turtle_blockname"] = function (block, generator) {
+  const dir = block.getFieldValue("DIR");
+  const fn = generator.provideFunction_(
+    "blockName",
+    `local function ${generator.FUNCTION_NAME_PLACEHOLDER_}(dir)
+  local ok, data
+  if dir == "Up" then ok, data = turtle.inspectUp()
+  elseif dir == "Down" then ok, data = turtle.inspectDown()
+  else ok, data = turtle.inspect() end
+  if ok and data then return data.name else return "" end
+end
+`
+  );
+  return [`${fn}("${dir}")`, Order.NONE];
+};
+forBlock["turtle_select_next_nonempty"] = function (block, generator) {
+  const fn = generator.provideFunction_(
+    "selectNextNonEmpty",
+    `local function ${generator.FUNCTION_NAME_PLACEHOLDER_}()
+  if turtle.getItemCount() > 0 then return end
+  for s = 1, 16 do
+    if turtle.getItemCount(s) > 0 then
+      turtle.select(s)
+      return
+    end
+  end
+end
+`
+  );
+  return `${fn}()\n`;
+};
 forBlock["shallow_copy"] = function (block, generator) {
   const shallowCopy = generator.provideFunction_(
     "shallow_copy",

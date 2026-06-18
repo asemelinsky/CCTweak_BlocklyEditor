@@ -10,6 +10,14 @@ export const en = {
     upload: "📤 Send to Minecraft",
     uploading: "⏳ Uploading…",
     emptyCode: "⚠️ Empty code",
+    filesOnServer: "Files on server",
+    refresh: "Refresh list",
+    noData: "(no data)",
+    empty: "(empty)",
+    loading: "Loading…",
+    confirmDelete: "Delete",
+    noBlockState: "⚠️ File has no block state — code loaded without blocks.",
+    loadedFromServer: "✅ Loaded from server",
   },
 
   categories: {
@@ -41,6 +49,9 @@ export const en = {
     TURTLE_SELECT: "Select slot #%1",
     TURTLE_DETECT: "Is there a block %1?",
     TURTLE_DROP: "Drop %1 %2 items",
+    TURTLE_GETITEMCOUNT: "Items in slot %1",
+    TURTLE_BLOCKNAME: "Name of block %1",
+    TURTLE_SELECT_NEXT_NONEMPTY: "If current slot empty → next non-empty slot",
 
     CC_PRINT: "print %1",
     CC_WRITE: "write %1",

@@ -1051,6 +1051,50 @@ const turtle_select = {
   tooltip: "Get the selected slot from 1 to 16",
   helpUrl: "",
 };
+const turtle_getitemcount = {
+  type: "turtle_getitemcount",
+  message0: "Items in slot %1",
+  args0: [
+    {
+      type: "input_value",
+      name: "SLOT",
+      check: "Number",
+    },
+  ],
+  colour: 230,
+  tooltip: "Number of items in slot (0 = currently selected slot)",
+  helpUrl: "",
+  output: "Number",
+};
+const turtle_blockname = {
+  type: "turtle_blockname",
+  message0: "Name of block %1",
+  args0: [
+    {
+      type: "field_dropdown",
+      name: "DIR",
+      options: [
+        ["forward", ""],
+        ["up", "Up"],
+        ["down", "Down"],
+      ],
+    },
+  ],
+  colour: 230,
+  tooltip: 'Block ID string, e.g. "minecraft:stone" — empty string if no block.',
+  helpUrl: "",
+  output: "String",
+};
+const turtle_select_next_nonempty = {
+  type: "turtle_select_next_nonempty",
+  message0: "If current slot empty → next non-empty slot",
+  previousStatement: null,
+  nextStatement: null,
+  colour: 100,
+  tooltip:
+    "If selected slot has 0 items, scan slots 1..16 and select first one that has items.",
+  helpUrl: "",
+};
 const get_arg = {
   type: "get_arg",
   message0: "Get arg # %1",
@@ -2750,6 +2794,9 @@ export const blockJsonArray = [
   turtle_refuel,
   turtle_refuel_isfuel,
   turtle_select,
+  turtle_select_next_nonempty,
+  turtle_getitemcount,
+  turtle_blockname,
   turtle_suck,
   turtle_transferto,
 
