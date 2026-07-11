@@ -38,3 +38,64 @@ pre, code {
     margin-top: 0.5rem;
     padding: 0.5rem;
 }
+
+#fileList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+#fileList li {
+    padding: 0.35em 0.6em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+#fileList li:last-child {
+    border-bottom: none;
+}
+
+#fileList li:hover {
+    background: #2a2a2a;
+}
+
+#fileList li.active {
+    background: #1d4d8a;
+    color: #e0e0e0;
+}
+
+#fileList li.file-list-empty {
+    color: #888;
+    cursor: default;
+    justify-content: center;
+}
+
+#fileList li.file-list-empty:hover {
+    background: transparent;
+}
+
+#fileList .file-name {
+    flex: 1;
+    font-family: monospace;
+}
+
+#fileList .file-delete-btn {
+    background: transparent;
+    border: none;
+    color: #c33;
+    font-size: 1.1em;
+    opacity: 0;
+    cursor: pointer;
+    padding: 0 0.3em;
+}
+
+#fileList li:hover .file-delete-btn {
+    opacity: 1;
+}
