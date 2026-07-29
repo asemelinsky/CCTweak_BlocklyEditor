@@ -5,7 +5,8 @@ function getSftpConfig(body) {
 
   // Builtin server — all credentials from env
   if (serverId) {
-    const userEnv = serverId === 'server2' ? 'SFTP_USER_2' : 'SFTP_USER_1';
+    const USER_ENV = { server1: 'SFTP_USER_1', server2: 'SFTP_USER_2', server3: 'SFTP_USER_3' };
+    const userEnv = USER_ENV[serverId] || 'SFTP_USER_1';
     return {
       host: process.env.SFTP_HOST,
       port: parseInt(process.env.SFTP_PORT || '2022'),
