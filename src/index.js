@@ -12,6 +12,7 @@ import "./index.css";
 import "./toolbox_style.css";
 
 import {shadowBlockConversionChangeListener} from '@blockly/shadow-block-converter';
+import {Backpack} from '@blockly/workspace-backpack';
 
 // const secret = require('./secret.json');  // removed: pastebin integration unused
 
@@ -81,6 +82,23 @@ const blocklyDiv = document.getElementById("blocklyDiv");
 const ws = Blockly.inject(blocklyDiv, { toolbox: buildToolbox(dict) });
 
 ws.addChangeListener(shadowBlockConversionChangeListener);
+
+// Backpack (Scratch-style cross-workspace clipboard) — plugin малює icon у corner,
+// містить mini-flyout з збереженими блоками. Contents attached до `ws` — оскільки
+// у нас один Blockly instance (tabs просто swap state), автоматично доступний
+// між всіма вкладками. Persistence + local-storage автоматично через plugin.
+const backpack = new Backpack(ws, {
+  contextMenu: {
+    emptyBackpack: true,
+    removeFromBackpack: true,
+    copyToBackpack: true,
+    copyAllToBackpack: true,
+    pasteAllToBackpack: false,
+    disablePreconditionChecks: false,
+  },
+  useFilledBackpackImage: true,
+});
+backpack.init();
 
 // Auto-save active tab state у localStorage на кожну зміну workspace
 ws.addChangeListener((e) => {
@@ -618,12 +636,6 @@ copyButton.onclick = copyCode;
 downloadButton.onclick = downloadWorkspace;
 loadButton.onclick = loadWorkspace;
 newButton.onclick = newFile;
-
-// Backpack toggle (placeholder — реальна логіка у пункті #3)
-const backpackDock = document.getElementById('backpackDock');
-document.querySelector('.backpack-head')?.addEventListener('click', () => {
-  backpackDock.classList.toggle('collapsed');
-});
 //connectButton.onclick = connectToPastebin;
 //uploadButton.onclick = uploadToPastebin;
 //uploadWorkspaceButton.onclick = uploadWorkspaceToPastebin;
