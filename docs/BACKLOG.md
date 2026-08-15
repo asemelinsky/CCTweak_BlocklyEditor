@@ -136,7 +136,7 @@
 
 ---
 
-## 6. Розділити «Рух» на «Рухатись» + «Повернути» 📋 🔴 P1
+## 6. Розділити «Рух» на «Рухатись» + «Повернути» ✅ (2026-08-15)
 
 **Що зараз:** блок `turtle_move` містить 6 options у одному dropdown: `forward/up/down/back/turnLeft/turnRight`. Але «рухатись ліворуч» насправді значить «повернути ліворуч» — misлеади.
 
@@ -172,7 +172,9 @@
 
 ### 2026-08-15
 
-- **#3 Backpack (Scratch clipboard)** — commit `da177cb`. Використано `@blockly/workspace-backpack@5.3.9` (Blockly 10 compat). Native drag workspace↔backpack, auto thumbnails, context menu, cross-tab автоматично (attached до `ws` який один на всі tabs).
+- **#6 Розділити «Рух» на «Рухатись» + «Повернути»** — commit `93312a2`. Новий блок `turtle_turn` (2 options, left/right) → `turtle.turnLeft()` / `turtle.turnRight()`. `turtle_move` zachowує 6 options (backward compat — старі програми з DIR=turnLeft/turnRight грузаться без помилок; у i18n позначено як «(застаріле — використай Повернути)»). Toolbox категорія Рух — обидва блоки поруч.
+- **#3 Backpack cross-tab fix** — commit `93312a2`. Persist contents у localStorage (ключ `cctweak_blockly_backpack`), restore при init + після `ws.clear()` у `loadTabIntoWorkspace`. Bug був: при tab-switch `ws.clear` стирав attached backpack state.
+- **#3 Backpack (Scratch clipboard)** — commit `da177cb`. Використано `@blockly/workspace-backpack@5.3.9` (Blockly 10 compat). Native drag workspace↔backpack, auto thumbnails, context menu.
 - **#2 Вкладки для декількох файлів** — commit `147beab`. Tab bar над Blockly workspace, адаптовано з `CCTweak_LuaPageCoding` (Ace) під Blockly (state = `save(ws)` JSON string). localStorage keys: `cctweak_blockly_tabs`, `cctweak_blockly_active_tab`. Клік → switch, `+`/Ctrl+T → addTab, `×` → close (не остання), double-click → inline rename, drag&drop reorder. `newButton` (#4) тепер = addTab.
 - **#4 Кнопка «Новий файл»** — commit `5b3dd6c`. Додано `newButton` у File-панелі + handler з confirm (якщо workspace непорожній) → `ws.clear()` + reset filename + reset `currentServerFile=null`. i18n `newFile`+`confirmNew` (uk/en).
 - **#5 Redesign UI лівої панелі** — commit `5b3dd6c`. Новий layout: header (title + lang toggle) → mainRow (left panel 320px + Blockly workspace) → footer backpack dock (згортається). Ліва панель розбита на 3 секції: 📁 File / 🎯 Deploy / 📚 Files on server. Прибрано «Завантажити Lua» + dead `downloadLuaButton` reference. Compact styling (gap, padding, unified button styling).
