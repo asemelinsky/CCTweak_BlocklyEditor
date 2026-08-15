@@ -79,7 +79,7 @@
 
 ---
 
-## 4. Кнопка «Новий файл» 📋 🔴 P1
+## 4. Кнопка «Новий файл» ✅ (2026-08-15)
 
 **Що зараз:** щоб почати новий проект — треба відкрити існуючий файл → перейменувати → зберегти (він же одразу завантажиться у turtle на сервері → перезапише). Кривий workflow, ризик випадково перезаписати existing файл на сервері.
 
@@ -97,7 +97,7 @@
 
 ---
 
-## 5. Redesign UI лівої панелі (після прибирання Lua-code) 📋 🔴 P1 (blocked by #1)
+## 5. Redesign UI лівої панелі (після прибирання Lua-code) ✅ (2026-08-15)
 
 **Що зараз:** ліва панель містить:
 - Селектор мови (UA/EN)
@@ -172,7 +172,9 @@
 
 ### 2026-08-15
 
-- **#1 Прибрати ліву панель «дорослий Lua код»** — прибрано повністю (не toggle). Прибрані з `src/index.html`, `src/index.css`, `src/index.js`: `<pre id="generatedCode">`, `#generatedCode` CSS, Prism imports, `codeDiv`, `htmlDecode`, `runCode()`. `luaGenerator.workspaceToCode(ws)` викликається on-demand у upload/copy/download (без preview). Build OK. Rollback via `git revert <commit>`.
+- **#4 Кнопка «Новий файл»** — commit `5b3dd6c`. Додано `newButton` у File-панелі + handler з confirm (якщо workspace непорожній) → `ws.clear()` + reset filename + reset `currentServerFile=null`. i18n `newFile`+`confirmNew` (uk/en).
+- **#5 Redesign UI лівої панелі** — commit `5b3dd6c`. Новий layout: header (title + lang toggle) → mainRow (left panel 320px + Blockly workspace) → footer backpack dock (згортається). Ліва панель розбита на 3 секції: 📁 File / 🎯 Deploy / 📚 Files on server. Прибрано «Завантажити Lua» + dead `downloadLuaButton` reference. Compact styling (gap, padding, unified button styling).
+- **#1 Прибрати ліву панель «дорослий Lua код»** — commit `3c79758`. Прибрано повністю (не toggle). Прибрані з `src/index.html`, `src/index.css`, `src/index.js`: `<pre id="generatedCode">`, `#generatedCode` CSS, Prism imports, `codeDiv`, `htmlDecode`, `runCode()`. `luaGenerator.workspaceToCode(ws)` викликається on-demand у upload/copy/download (без preview). Build OK. Rollback via `git revert <commit>`.
 
 _(поки нічого)_
 
