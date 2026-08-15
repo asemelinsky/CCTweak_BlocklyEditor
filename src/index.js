@@ -150,6 +150,11 @@ const copyButton = document.getElementById('copyButton');
 const fileName = document.getElementById('fileName');
 const downloadButton = document.getElementById('downloadButton');
 const loadButton = document.getElementById('loadButton');
+const newButton = document.getElementById('newButton');
+
+// State: назва файлу на сервері (для highlight у fileList). Оновлюється при
+// open з сервера / save. `null` = нема прив'язки (напр. після newFile).
+let currentServerFile = null;
 
 const copyCode = () => {
   const code = luaGenerator.workspaceToCode(ws);
@@ -172,14 +177,16 @@ const downloadWorkspace = () => {
   a.click();
 };
 
-const downloadLua = () => {
-  const code = luaGenerator.workspaceToCode(ws);
-  const blob = new Blob([code], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = (fileName.value || 'workspace') + '.lua';
-  a.click();
+const newFile = () => {
+  // Кнопка «➕ Новий» — очистити workspace + reset назви.
+  // Confirm якщо workspace непорожній щоб не втратити роботу випадково.
+  if (ws.getAllBlocks(false).length > 0) {
+    if (!confirm(dict.ui.confirmNew || 'Створити новий файл? Незбережені зміни буде втрачено.')) return;
+  }
+  ws.clear();
+  fileName.value = 'program';
+  currentServerFile = null;
+  // Не чіпаємо файли на сервері — тільки локально.
 };
 
 const loadWorkspace = () => {
@@ -334,7 +341,7 @@ document.getElementById('uploadMcButton').onclick = uploadToMinecraft;
 // ==================== FILE LIST ====================
 const fileListEl = document.getElementById('fileList');
 const fileListStatus = document.getElementById('fileListStatus');
-let currentServerFile = null;
+// currentServerFile — оголошено раніше (top-level state)
 
 const setListMessage = (text, cls = 'file-list-empty') => {
   fileListEl.innerHTML = '';
@@ -451,8 +458,14 @@ compInput.onchange = () => localStorage.setItem('cctweak_comp', compInput.value)
 
 copyButton.onclick = copyCode;
 downloadButton.onclick = downloadWorkspace;
-downloadLuaButton.onclick = downloadLua;
 loadButton.onclick = loadWorkspace;
+newButton.onclick = newFile;
+
+// Backpack toggle (placeholder — реальна логіка у пункті #3)
+const backpackDock = document.getElementById('backpackDock');
+document.querySelector('.backpack-head')?.addEventListener('click', () => {
+  backpackDock.classList.toggle('collapsed');
+});
 //connectButton.onclick = connectToPastebin;
 //uploadButton.onclick = uploadToPastebin;
 //uploadWorkspaceButton.onclick = uploadWorkspaceToPastebin;

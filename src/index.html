@@ -7,53 +7,71 @@
   </head>
   <body>
     <div id="pageContainer">
-      <div id="outputPane">
-        <div id="langBar" style="margin-top: 1em;">
+
+      <header id="topBar">
+        <div id="topTitle">CCTweak Blockly Editor</div>
+        <div id="topActions">
           <label data-i18n="ui.lang">Мова:</label>
           <select id="langSelect">
             <option value="uk">Українська</option>
             <option value="en">English</option>
           </select>
         </div>
-        <input type="text" name="fileName" id="fileName" value="program" style="margin-top: 1em;">
-        <div style="margin-top: 0.5em;">
-          <button id="copyButton" data-i18n="ui.copy">Копіювати</button>
-          <button id="downloadButton" data-i18n="ui.download">Завантажити</button>
-          <button id="downloadLuaButton" data-i18n="ui.downloadLua">Завантажити Lua</button>
-          <button id="loadButton" data-i18n="ui.load">Відкрити</button>
-        </div>
-        <div id="mcUploadBar" style="margin-top: 1em; padding: 0.6em; border: 1px solid #444; border-radius: 6px;">
-          <div style="margin-bottom: 0.5em;">
+      </header>
+
+      <div id="mainRow">
+        <aside id="outputPane">
+
+          <section class="panel">
+            <h3 data-i18n="ui.sectionFile">📁 Файл</h3>
+            <input type="text" name="fileName" id="fileName" value="program" data-i18n-placeholder="ui.fileNamePlaceholder">
+            <div class="btn-row">
+              <button id="newButton" data-i18n="ui.newFile">➕ Новий</button>
+              <button id="loadButton" data-i18n="ui.load">📂 Відкрити</button>
+              <button id="downloadButton" data-i18n="ui.download">💾 Зберегти</button>
+              <button id="copyButton" data-i18n="ui.copy">📋 Копіювати Lua</button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h3 data-i18n="ui.sectionDeploy">🎯 Надіслати на сервер</h3>
             <label data-i18n="ui.server">Сервер:</label>
-            <select id="serverId" style="margin-left: 0.4em;">
+            <select id="serverId">
               <option value="server1">Server 1 (Forge 1.20.1)</option>
               <option value="server2" selected>Server 2 (Arclight 1.21.1)</option>
               <option value="server3">Server 3 (Lite — черепашка)</option>
             </select>
-          </div>
-          <div style="margin-bottom: 0.5em;">
-            <label data-i18n="ui.computerId">Computer ID:</label>
-            <input type="number" id="computerId" min="0" value="0" style="width: 5em; margin-left: 0.4em;">
-          </div>
-          <div>
-            <button id="uploadMcButton" data-i18n="ui.upload">📤 Надіслати на Minecraft</button>
-          </div>
-          <div id="uploadStatus" style="margin-top: 0.5em; min-height: 1.2em;"></div>
-          <div style="margin-top: 0.8em; padding-top: 0.6em; border-top: 1px dashed #666;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4em;">
-              <strong data-i18n="ui.filesOnServer">Файли на сервері</strong>
-              <button id="refreshFilesBtn" data-i18n="ui.refresh">Оновити список</button>
+            <label data-i18n="ui.computerId">ID комп'ютера:</label>
+            <input type="number" id="computerId" min="0" value="0">
+            <button id="uploadMcButton" class="primary" data-i18n="ui.upload">📤 Надіслати на Minecraft</button>
+            <div id="uploadStatus"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h3 data-i18n="ui.filesOnServer">📚 Файли на сервері</h3>
+              <button id="refreshFilesBtn" data-i18n="ui.refresh">🔄</button>
             </div>
             <ul id="fileList"><li class="file-list-empty" data-i18n="ui.noData">(немає даних)</li></ul>
-            <div id="fileListStatus" style="margin-top: 0.4em; min-height: 1em; font-size: 0.9em;"></div>
+            <div id="fileListStatus"></div>
+          </section>
+
+        </aside>
+        <div id="blocklyDiv"></div>
+      </div>
+
+      <footer id="backpackDock" class="collapsed">
+        <div class="backpack-head">
+          <span data-i18n="ui.backpack">🎒 Рюкзак</span>
+          <button id="backpackToggle" title="Розгорнути/згорнути">▲</button>
+        </div>
+        <div id="backpackContent">
+          <div class="backpack-placeholder" data-i18n="ui.backpackPlaceholder">
+            Реалізація у беклозі, пункт #3. Перетягуй сюди групи блоків, щоб копіювати між вкладками.
           </div>
         </div>
-        <!--<button id="connectButton">Connect to Pastebin</button>
-        <button id="uploadButton">Upload to Pastebin</button>
-        <button id="uploadWorkspaceButton">Upload Workspace to Pastebin</button>
-        <button id="loadWorkspaceButton">Load Workspace from Pastebin</button>-->
-      </div>
-      <div id="blocklyDiv"></div>
+      </footer>
+
     </div>
   </body>
 </html>
