@@ -45,8 +45,11 @@ export const en = {
     TURTLE_MOVE_UP: "up",
     TURTLE_MOVE_DOWN: "down",
     TURTLE_MOVE_BACK: "back",
-    TURTLE_MOVE_LEFT: "left",
-    TURTLE_MOVE_RIGHT: "right",
+    TURTLE_MOVE_LEFT: "left (legacy — use «Turn»)",
+    TURTLE_MOVE_RIGHT: "right (legacy — use «Turn»)",
+    TURTLE_TURN: "Turn %1",
+    TURTLE_TURN_LEFT: "left",
+    TURTLE_TURN_RIGHT: "right",
 
     TURTLE_DIG: "Dig %1",
     TURTLE_BUILD: "Place block %1",

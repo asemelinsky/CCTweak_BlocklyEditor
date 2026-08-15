@@ -48,8 +48,11 @@ export const uk = {
     TURTLE_MOVE_UP: "вгору",
     TURTLE_MOVE_DOWN: "вниз",
     TURTLE_MOVE_BACK: "назад",
-    TURTLE_MOVE_LEFT: "ліворуч",
-    TURTLE_MOVE_RIGHT: "праворуч",
+    TURTLE_MOVE_LEFT: "ліворуч (застаріле — використай «Повернути»)",
+    TURTLE_MOVE_RIGHT: "праворуч (застаріле — використай «Повернути»)",
+    TURTLE_TURN: "Повернути %1",
+    TURTLE_TURN_LEFT: "ліворуч",
+    TURTLE_TURN_RIGHT: "праворуч",
 
     TURTLE_DIG: "Копати %1",
     TURTLE_BUILD: "Поставити блок %1",

@@ -300,6 +300,12 @@ forBlock["turtle_move"] = function (block, generator) {
     times > 1 ? " end" : ""
   }\n`;
 };
+// New turtle_turn block (BACKLOG #6, 2026-08-15) — просте mapping до
+// turtle.turnLeft() / turtle.turnRight(). Без TIMES (не потрібно).
+forBlock["turtle_turn"] = function (block) {
+  const dir = block.getFieldValue("DIR");
+  return `turtle.${dir}()\n`;
+};
 forBlock["turtle_attack"] = function (block, generator) {
   const dir = block.getFieldValue("DIR");
   return `turtle.attack${dir}()\n`;

@@ -48,8 +48,15 @@ const moveDirs = [
   [D.TURTLE_MOVE_UP, "up"],
   [D.TURTLE_MOVE_DOWN, "down"],
   [D.TURTLE_MOVE_BACK, "back"],
+  // NB: turnLeft/turnRight лишаються для backward-compat (легасі-програми
+  // серіалізовані з DIR=turnLeft тут знайдуть option і не втратять поле).
+  // Нові програми повинні використовувати окремий блок turtle_turn.
   [D.TURTLE_MOVE_LEFT, "turnLeft"],
   [D.TURTLE_MOVE_RIGHT, "turnRight"],
+];
+const turnDirs = [
+  [D.TURTLE_TURN_LEFT, "turnLeft"],
+  [D.TURTLE_TURN_RIGHT, "turnRight"],
 ];
 const patch = (type, message0, dirOpts) => {
   const b = blockJsonArray.find((x) => x.type === type);
@@ -61,6 +68,7 @@ const patch = (type, message0, dirOpts) => {
   }
 };
 patch("turtle_move", D.TURTLE_MOVE, moveDirs);
+patch("turtle_turn", D.TURTLE_TURN, turnDirs);
 patch("turtle_dig", D.TURTLE_DIG, dirUp);
 patch("turtle_build", D.TURTLE_BUILD, dirUp);
 patch("turtle_detect", D.TURTLE_DETECT, dirUp);
@@ -99,6 +107,31 @@ const backpack = new Backpack(ws, {
   useFilledBackpackImage: true,
 });
 backpack.init();
+
+// Backpack cross-tab persistence: plugin за замовчуванням тримає contents у пам'яті.
+// Оскільки ws.clear() у switchTab очищає workspace state, backpack теж може
+// втратити свій набір. Fix: persist contents у localStorage і restore.
+const BACKPACK_KEY = 'cctweak_blockly_backpack';
+const restoreBackpack = () => {
+  try {
+    const raw = localStorage.getItem(BACKPACK_KEY);
+    if (raw) backpack.setContents(JSON.parse(raw));
+  } catch (e) { console.warn('backpack restore failed', e); }
+};
+const saveBackpack = () => {
+  try {
+    localStorage.setItem(BACKPACK_KEY, JSON.stringify(backpack.getContents()));
+  } catch (e) { console.warn('backpack save failed', e); }
+};
+restoreBackpack();
+// Слухаємо custom event від plugin (BackpackChange) — генерується при
+// add/remove/empty у backpack.
+ws.addChangeListener((e) => {
+  // Plugin type varies by version; ловимо будь-що що стосується backpack
+  if (e && e.type && String(e.type).toLowerCase().includes('backpack')) {
+    saveBackpack();
+  }
+});
 
 // Auto-save active tab state у localStorage на кожну зміну workspace
 ws.addChangeListener((e) => {
@@ -273,11 +306,15 @@ function persistActiveTabState() {
 }
 
 function loadTabIntoWorkspace(tab) {
+  // Backpack contents треба зберегти перед ws.clear() і відновити після.
+  // Оскільки backpack attached до workspace, ws.clear може стерти його state.
+  const bpContents = backpack.getContents();
   ws.clear();
   if (tab.state) {
     try { load(ws, tab.state); }
     catch (e) { console.warn('Load tab failed', e); }
   }
+  backpack.setContents(bpContents);
   fileName.value = tab.name;
   currentServerFile = null;
 }

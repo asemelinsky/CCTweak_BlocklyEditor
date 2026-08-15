@@ -752,6 +752,9 @@ const turtle_move = {
     {
       type: "field_dropdown",
       name: "DIR",
+      // NB: 6 options зберігаються для backward compatibility — старі програми
+      // серіалізовані з DIR="turnLeft"/"turnRight" мають продовжити load'итись.
+      // Нові програми повинні використовувати turtle_turn (окремий block нижче).
       options: [
         ["forward", "forward"],
         ["up", "up"],
@@ -771,6 +774,29 @@ const turtle_move = {
   nextStatement: null,
   colour: 230,
   tooltip: "I like to move it move it",
+  helpUrl: "",
+};
+// Окремий блок для поворотів — визуально розрізняє "рухатись" vs "повернути"
+// (додано 2026-08-15, BACKLOG #6). Просте mapping: left → turtle.turnLeft(),
+// right → turtle.turnRight(). Замінник для нових програм; старі продовжують
+// використовувати turtle_move з DIR="turnLeft"/"turnRight" (backward compat).
+const turtle_turn = {
+  type: "turtle_turn",
+  message0: "Turn %1",
+  args0: [
+    {
+      type: "field_dropdown",
+      name: "DIR",
+      options: [
+        ["left", "turnLeft"],
+        ["right", "turnRight"],
+      ],
+    },
+  ],
+  previousStatement: null,
+  nextStatement: null,
+  colour: 230,
+  tooltip: "",
   helpUrl: "",
 };
 const turtle_craft = {
@@ -2791,6 +2817,7 @@ export const blockJsonArray = [
   turtle_getselectedslot,
   turtle_inspect,
   turtle_move,
+  turtle_turn,
   turtle_refuel,
   turtle_refuel_isfuel,
   turtle_select,

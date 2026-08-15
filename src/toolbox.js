@@ -15,6 +15,7 @@ export const buildToolbox = (dict) => ({
       categorystyle: "turtle_category",
       contents: [
         { kind: "block", type: "turtle_move", inputs: { TIMES: shadowNum(1) } },
+        { kind: "block", type: "turtle_turn" },
       ],
     },
     {
