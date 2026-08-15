@@ -29,10 +29,6 @@ pre, code {
     margin: 1rem;
 }
 
-#generatedCode {
-    height: 500px;
-}
-
 .copy-to-clipboard-button {
     margin: 0.5rem;
     margin-top: 0.5rem;

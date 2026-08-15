@@ -8,15 +8,10 @@ import { save, load } from "./serialization";
 import { buildToolbox } from "./toolbox";
 import { uk } from "./i18n/uk";
 import { en } from "./i18n/en";
-import Prism from "prismjs";
-import "./prismjs/prism-lua.js";
-import "./prismjs/prism-dark.css";
 import "./index.css";
 import "./toolbox_style.css";
 
 import {shadowBlockConversionChangeListener} from '@blockly/shadow-block-converter';
-
-Prism.highlightAll();
 
 // const secret = require('./secret.json');  // removed: pastebin integration unused
 
@@ -82,35 +77,14 @@ const blocks = Blockly.common.createBlockDefinitionsFromJsonArray(blockJsonArray
 Blockly.common.defineBlocks(blocks);
 Object.assign(luaGenerator.forBlock, forBlock);
 
-const codeDiv = document.getElementById("generatedCode").firstChild;
 const blocklyDiv = document.getElementById("blocklyDiv");
 const ws = Blockly.inject(blocklyDiv, { toolbox: buildToolbox(dict) });
 
 ws.addChangeListener(shadowBlockConversionChangeListener);
 
-function htmlDecode(input){
-  var doc = new DOMParser().parseFromString(input, "text/html");
-  return doc.documentElement.textContent;
-}
-
-const runCode = () => {
-  const code = luaGenerator.workspaceToCode(ws).replace(/<br>/g, '\n');
-  codeDiv.textContent = htmlDecode(code);
-  Prism.highlightElement(codeDiv);
-};
-
-runCode();
-
 ws.addChangeListener((e) => {
   if (e.isUiEvent) return;
   save(ws);
-});
-
-ws.addChangeListener((e) => {
-  if (e.isUiEvent || e.type == Blockly.Events.FINISHED_LOADING || ws.isDragging()) {
-    return;
-  }
-  runCode();
 });
 
 
@@ -220,7 +194,6 @@ const loadWorkspace = () => {
       const json = JSON.parse(reader.result);
       load(ws, json['workspace']);
       fileName.value = json['name'];
-      codeDiv.innerText = json['lua'];
     };
     reader.readAsText(file);
   };
@@ -430,8 +403,8 @@ async function loadFileFromServer(comp, file) {
       load(ws, state);
       fileListStatus.textContent = dict.ui.loadedFromServer;
     } else {
-      codeDiv.textContent = code;
-      Prism.highlightElement(codeDiv);
+      // Немає збереженого Blockly-стану у файлі (напр. raw Lua завантажений без блоків) —
+      // повідомити user'у, workspace не чіпаємо.
       fileListStatus.textContent = dict.ui.noBlockState;
     }
     refreshFileList();
