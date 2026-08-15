@@ -45,7 +45,7 @@
 
 ---
 
-## 3. «Рюкзак» — cross-tab clipboard блоків (як у Scratch) 📋 🟡 P2
+## 3. «Рюкзак» — cross-tab clipboard блоків (як у Scratch) ✅ (2026-08-15)
 
 **Що зараз:** copy-paste блоків працює тільки у межах поточного workspace.
 
@@ -172,6 +172,7 @@
 
 ### 2026-08-15
 
+- **#3 Backpack (Scratch clipboard)** — commit `da177cb`. Використано `@blockly/workspace-backpack@5.3.9` (Blockly 10 compat). Native drag workspace↔backpack, auto thumbnails, context menu, cross-tab автоматично (attached до `ws` який один на всі tabs).
 - **#2 Вкладки для декількох файлів** — commit `147beab`. Tab bar над Blockly workspace, адаптовано з `CCTweak_LuaPageCoding` (Ace) під Blockly (state = `save(ws)` JSON string). localStorage keys: `cctweak_blockly_tabs`, `cctweak_blockly_active_tab`. Клік → switch, `+`/Ctrl+T → addTab, `×` → close (не остання), double-click → inline rename, drag&drop reorder. `newButton` (#4) тепер = addTab.
 - **#4 Кнопка «Новий файл»** — commit `5b3dd6c`. Додано `newButton` у File-панелі + handler з confirm (якщо workspace непорожній) → `ws.clear()` + reset filename + reset `currentServerFile=null`. i18n `newFile`+`confirmNew` (uk/en).
 - **#5 Redesign UI лівої панелі** — commit `5b3dd6c`. Новий layout: header (title + lang toggle) → mainRow (left panel 320px + Blockly workspace) → footer backpack dock (згортається). Ліва панель розбита на 3 секції: 📁 File / 🎯 Deploy / 📚 Files on server. Прибрано «Завантажити Lua» + dead `downloadLuaButton` reference. Compact styling (gap, padding, unified button styling).
