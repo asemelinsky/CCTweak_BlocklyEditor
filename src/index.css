@@ -53,11 +53,102 @@ pre, code { overflow: auto; }
     overflow: hidden;
 }
 
-#blocklyDiv {
+/* Workspace column = tabBar (top) + blocklyDiv (fill) */
+#workspaceCol {
     flex: 1 1 auto;
     min-width: 400px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     height: 100%;
 }
+
+#blocklyDiv {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+}
+
+/* Tab bar */
+#tabBar {
+    display: flex;
+    align-items: center;
+    background: #262626;
+    border-bottom: 1px solid #333;
+    padding: 0 4px;
+    height: 34px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-shrink: 0;
+    gap: 2px;
+}
+#tabBar::-webkit-scrollbar { height: 3px; }
+#tabBar::-webkit-scrollbar-thumb { background: #555; }
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: #333;
+    border: 1px solid #444;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 13px;
+    color: #b0b0b0;
+    user-select: none;
+    flex-shrink: 0;
+    max-width: 200px;
+}
+.tab.active {
+    background: #1e1e1e;
+    color: #e0e0e0;
+    border-color: #666;
+}
+.tab:hover:not(.active) { background: #3d3d3d; }
+.tab.drag-over { border-left: 2px solid #4a9eff; }
+
+.tab-name {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tab-name-input {
+    background: #1c1c1c;
+    color: #e0e0e0;
+    border: 1px solid #4a9eff;
+    border-radius: 2px;
+    font-size: 12px;
+    width: 120px;
+    padding: 1px 3px;
+    outline: none;
+}
+.tab-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0 3px;
+    line-height: 1;
+    border-radius: 3px;
+}
+.tab-close:hover { background: #a33; color: #fff; }
+
+#addTabBtn {
+    background: none;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #999;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 8px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+#addTabBtn:hover { background: #3d3d3d; color: #e0e0e0; }
 
 /* --- Left panel --- */
 #outputPane {

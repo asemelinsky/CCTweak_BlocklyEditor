@@ -24,6 +24,8 @@ export const en = {
     backpack: "🎒 Backpack",
     backpackPlaceholder: "Implementation pending (backlog #3). Drag block groups here to copy between tabs.",
     fileNamePlaceholder: "File name",
+    tabDefaultName: "untitled",
+    newTabTitle: "New file (Ctrl+T)",
   },
 
   categories: {

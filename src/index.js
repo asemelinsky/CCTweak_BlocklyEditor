@@ -82,9 +82,14 @@ const ws = Blockly.inject(blocklyDiv, { toolbox: buildToolbox(dict) });
 
 ws.addChangeListener(shadowBlockConversionChangeListener);
 
+// Auto-save active tab state у localStorage на кожну зміну workspace
 ws.addChangeListener((e) => {
-  if (e.isUiEvent) return;
-  save(ws);
+  if (e.isUiEvent || e.type === Blockly.Events.FINISHED_LOADING || ws.isDragging()) return;
+  const cur = tabs.find(t => t.id === activeTabId);
+  if (cur) {
+    cur.state = save(ws);
+    saveTabs();
+  }
 });
 
 
@@ -156,6 +161,168 @@ const newButton = document.getElementById('newButton');
 // open з сервера / save. `null` = нема прив'язки (напр. після newFile).
 let currentServerFile = null;
 
+// ==================== TABS (multi-file support) ====================
+// localStorage schema:
+//   cctweak_blockly_tabs → JSON array of {id:int, name:string, state:string|null}
+//     state = JSON-string від save(ws) з serialization.js; null для порожньої вкладки
+//   cctweak_blockly_active_tab → int (id активної вкладки)
+const TABS_KEY = 'cctweak_blockly_tabs';
+const ACTIVE_TAB_KEY = 'cctweak_blockly_active_tab';
+
+let tabs = JSON.parse(localStorage.getItem(TABS_KEY) || 'null')
+        || [{ id: 1, name: 'program', state: null }];
+let activeTabId = parseInt(localStorage.getItem(ACTIVE_TAB_KEY) || '1', 10);
+if (!tabs.find(t => t.id === activeTabId)) activeTabId = tabs[0].id;
+let nextTabId = Math.max(...tabs.map(t => t.id)) + 1;
+let dragTabId = null;
+
+function saveTabs() {
+  localStorage.setItem(TABS_KEY, JSON.stringify(tabs));
+  localStorage.setItem(ACTIVE_TAB_KEY, String(activeTabId));
+}
+
+function renderTabs() {
+  const bar = document.getElementById('tabBar');
+  const addBtn = document.getElementById('addTabBtn');
+  bar.querySelectorAll('.tab').forEach(el => el.remove());
+
+  tabs.forEach(tab => {
+    const el = document.createElement('div');
+    el.className = 'tab' + (tab.id === activeTabId ? ' active' : '');
+    el.draggable = true;
+    el.dataset.id = tab.id;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'tab-name';
+    nameSpan.textContent = tab.name;
+    nameSpan.title = tab.name;
+    nameSpan.addEventListener('dblclick', (e) => { e.stopPropagation(); startTabRename(tab.id, nameSpan); });
+    el.appendChild(nameSpan);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'tab-close';
+    closeBtn.textContent = '×';
+    closeBtn.title = 'Закрити';
+    closeBtn.onclick = (e) => { e.stopPropagation(); closeTab(tab.id); };
+    el.appendChild(closeBtn);
+
+    el.onclick = () => switchTab(tab.id);
+
+    // Drag&drop reorder
+    el.addEventListener('dragstart', () => { dragTabId = tab.id; });
+    el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); });
+    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+    el.addEventListener('drop', (e) => {
+      e.preventDefault(); el.classList.remove('drag-over');
+      if (dragTabId === null || dragTabId === tab.id) return;
+      const fromIdx = tabs.findIndex(t => t.id === dragTabId);
+      const toIdx = tabs.findIndex(t => t.id === tab.id);
+      const [moved] = tabs.splice(fromIdx, 1);
+      tabs.splice(toIdx, 0, moved);
+      saveTabs(); renderTabs();
+    });
+    el.addEventListener('dragend', () => { dragTabId = null; });
+
+    bar.insertBefore(el, addBtn);
+  });
+}
+
+function startTabRename(id, span) {
+  const tab = tabs.find(t => t.id === id);
+  if (!tab) return;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'tab-name-input';
+  input.value = tab.name;
+  span.replaceWith(input);
+  input.focus(); input.select();
+  const finish = () => {
+    const val = input.value.trim() || tab.name;
+    tab.name = val;
+    if (tab.id === activeTabId) fileName.value = val;
+    saveTabs(); renderTabs();
+  };
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') finish();
+    if (e.key === 'Escape') { saveTabs(); renderTabs(); }
+  });
+  input.addEventListener('blur', finish);
+}
+
+function persistActiveTabState() {
+  const cur = tabs.find(t => t.id === activeTabId);
+  if (cur) cur.state = save(ws);
+}
+
+function loadTabIntoWorkspace(tab) {
+  ws.clear();
+  if (tab.state) {
+    try { load(ws, tab.state); }
+    catch (e) { console.warn('Load tab failed', e); }
+  }
+  fileName.value = tab.name;
+  currentServerFile = null;
+}
+
+function switchTab(id) {
+  if (id === activeTabId) return;
+  persistActiveTabState();
+  const next = tabs.find(t => t.id === id);
+  if (!next) return;
+  activeTabId = id;
+  loadTabIntoWorkspace(next);
+  saveTabs(); renderTabs();
+}
+
+function addTab() {
+  persistActiveTabState();
+  const id = nextTabId++;
+  const name = (dict.ui.tabDefaultName || 'untitled') + ' ' + id;
+  tabs.push({ id, name, state: null });
+  activeTabId = id;
+  ws.clear();
+  fileName.value = name;
+  currentServerFile = null;
+  saveTabs(); renderTabs();
+  if (tabs.length > 20) console.warn('Багато вкладок (' + tabs.length + ') — можливе гальмо / вихід за 5MB localStorage');
+}
+
+function closeTab(id) {
+  if (tabs.length === 1) return; // не закривати останню
+  const idx = tabs.findIndex(t => t.id === id);
+  if (idx === -1) return;
+  tabs.splice(idx, 1);
+  if (activeTabId === id) {
+    const t = tabs[Math.min(idx, tabs.length - 1)];
+    activeTabId = t.id;
+    loadTabIntoWorkspace(t);
+  }
+  saveTabs(); renderTabs();
+}
+
+// Sync fileName input → active tab name (щоб коли user редагує назву у File-panel,
+// tab-title теж оновився)
+fileName.addEventListener('input', () => {
+  const tab = tabs.find(t => t.id === activeTabId);
+  if (tab) { tab.name = fileName.value.trim() || tab.name; saveTabs(); renderTabs(); }
+});
+
+// Initial: завантажити активну вкладку у workspace
+const initialTab = tabs.find(t => t.id === activeTabId);
+if (initialTab) loadTabIntoWorkspace(initialTab);
+renderTabs();
+
+// Ctrl+T = новий tab
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+    e.preventDefault();
+    addTab();
+  }
+});
+
+document.getElementById('addTabBtn').onclick = addTab;
+// ==================== /TABS ====================
+
 const copyCode = () => {
   const code = luaGenerator.workspaceToCode(ws);
   navigator.clipboard.writeText(code);
@@ -177,17 +344,8 @@ const downloadWorkspace = () => {
   a.click();
 };
 
-const newFile = () => {
-  // Кнопка «➕ Новий» — очистити workspace + reset назви.
-  // Confirm якщо workspace непорожній щоб не втратити роботу випадково.
-  if (ws.getAllBlocks(false).length > 0) {
-    if (!confirm(dict.ui.confirmNew || 'Створити новий файл? Незбережені зміни буде втрачено.')) return;
-  }
-  ws.clear();
-  fileName.value = 'program';
-  currentServerFile = null;
-  // Не чіпаємо файли на сервері — тільки локально.
-};
+// «➕ Новий» — тепер = addTab (створити нову вкладку, не clear поточну)
+const newFile = () => addTab();
 
 const loadWorkspace = () => {
   const input = document.createElement('input');

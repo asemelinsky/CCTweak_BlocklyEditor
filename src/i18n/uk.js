@@ -25,6 +25,8 @@ export const uk = {
     backpack: "🎒 Рюкзак",
     backpackPlaceholder: "Реалізація у беклозі (пункт #3). Перетягуй сюди групи блоків, щоб копіювати між вкладками.",
     fileNamePlaceholder: "Назва файлу",
+    tabDefaultName: "новий",
+    newTabTitle: "Новий файл (Ctrl+T)",
   },
 
   // Toolbox categories
