@@ -23,7 +23,7 @@
 
 ---
 
-## 2. Вкладки для декількох файлів одночасно 📋 🔴 P1
+## 2. Вкладки для декількох файлів одночасно ✅ (2026-08-15)
 
 **Що зараз:** один workspace — один файл. Щоб редагувати інший — треба save + перезавантажити.
 
@@ -172,6 +172,7 @@
 
 ### 2026-08-15
 
+- **#2 Вкладки для декількох файлів** — commit `147beab`. Tab bar над Blockly workspace, адаптовано з `CCTweak_LuaPageCoding` (Ace) під Blockly (state = `save(ws)` JSON string). localStorage keys: `cctweak_blockly_tabs`, `cctweak_blockly_active_tab`. Клік → switch, `+`/Ctrl+T → addTab, `×` → close (не остання), double-click → inline rename, drag&drop reorder. `newButton` (#4) тепер = addTab.
 - **#4 Кнопка «Новий файл»** — commit `5b3dd6c`. Додано `newButton` у File-панелі + handler з confirm (якщо workspace непорожній) → `ws.clear()` + reset filename + reset `currentServerFile=null`. i18n `newFile`+`confirmNew` (uk/en).
 - **#5 Redesign UI лівої панелі** — commit `5b3dd6c`. Новий layout: header (title + lang toggle) → mainRow (left panel 320px + Blockly workspace) → footer backpack dock (згортається). Ліва панель розбита на 3 секції: 📁 File / 🎯 Deploy / 📚 Files on server. Прибрано «Завантажити Lua» + dead `downloadLuaButton` reference. Compact styling (gap, padding, unified button styling).
 - **#1 Прибрати ліву панель «дорослий Lua код»** — commit `3c79758`. Прибрано повністю (не toggle). Прибрані з `src/index.html`, `src/index.css`, `src/index.js`: `<pre id="generatedCode">`, `#generatedCode` CSS, Prism imports, `codeDiv`, `htmlDecode`, `runCode()`. `luaGenerator.workspaceToCode(ws)` викликається on-demand у upload/copy/download (без preview). Build OK. Rollback via `git revert <commit>`.
