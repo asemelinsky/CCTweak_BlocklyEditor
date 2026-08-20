@@ -31,6 +31,7 @@ export const uk = {
 
   // Toolbox categories
   categories: {
+    turtle: "🐢 Черепашка",
     movement: "🚶 Рух",
     build: "🧱 Будова",
     loops: "🔁 Цикли",

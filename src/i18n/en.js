@@ -29,6 +29,7 @@ export const en = {
   },
 
   categories: {
+    turtle: "🐢 Turtle",
     movement: "🚶 Movement",
     build: "🧱 Build",
     loops: "🔁 Loops",

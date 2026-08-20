@@ -455,6 +455,21 @@ forBlock["disk_ispresent"] = function (block, generator) {
   return [code, Order.NONE];
 };
 
+// ==== 🐢 Черепашка — identity generators ====
+
+forBlock["os_setlabel"] = function (block, generator) {
+  const label = generator.valueToCode(block, "LABEL", Order.NONE) || "'Мо'";
+  return `os.setComputerLabel(${label})\n`;
+};
+
+forBlock["os_getlabel"] = function (block, generator) {
+  return [`(os.getComputerLabel() or '')`, Order.ATOMIC];
+};
+
+forBlock["os_computerid"] = function (block, generator) {
+  return [`os.getComputerID()`, Order.ATOMIC];
+};
+
 forBlock["disk_getlabel"] = function (block, generator) {
   const drive = generator.valueToCode(block, "DRIVE", Order.NONE) || "''";
   // Generate the function call for this block.

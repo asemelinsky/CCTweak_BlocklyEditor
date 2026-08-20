@@ -9,6 +9,20 @@ const shadowText = (t) => ({ shadow: { type: "text", fields: { TEXT: t } } });
 export const buildToolbox = (dict) => ({
   kind: "categoryToolbox",
   contents: [
+    // 🐢 Черепашка — identity, general commands, first-lesson intro
+    {
+      kind: "category",
+      name: dict.categories.turtle,
+      colour: "#FF9933",
+      contents: [
+        { kind: "block", type: "os_setlabel", inputs: { LABEL: shadowText("Мо") } },
+        { kind: "block", type: "os_getlabel" },
+        { kind: "block", type: "os_computerid" },
+        { kind: "block", type: "turtle_getfuellevel" },
+        { kind: "block", type: "print", inputs: { TEXT: shadowText("Привіт! Я — Мо") } },
+        { kind: "block", type: "sleep", inputs: { SEC: shadowNum(1) } },
+      ],
+    },
     {
       kind: "category",
       name: dict.categories.movement,

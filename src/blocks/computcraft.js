@@ -1254,6 +1254,41 @@ const disk_ispresent = {
   output: "Boolean",
 };
 
+// ==== 🐢 Черепашка — identity & general ====
+// Категорія "Черепашка" зібрана з методичних міркувань: перший урок "З2 Знайомство"
+// має все про саму черепашку в одному місці (ім'я, ID, пальне, print, sleep).
+
+const os_setlabel = {
+  type: "os_setlabel",
+  message0: "Задати ім'я черепашці %1",
+  args0: [{ type: "input_value", name: "LABEL", check: "String" }],
+  previousStatement: null,
+  nextStatement: null,
+  colour: "#FF9933",
+  tooltip:
+    "Дати черепашці ім'я. Видно у грі коли навести на неї. " +
+    "Записується постійно й живе з черепашкою — доки не перезапишеш вручну.",
+  helpUrl: "",
+};
+
+const os_getlabel = {
+  type: "os_getlabel",
+  message0: "Ім'я черепашки",
+  output: "String",
+  colour: "#FF9933",
+  tooltip: "Прочитати поточне ім'я черепашки (порожньо якщо ще не задано)",
+  helpUrl: "",
+};
+
+const os_computerid = {
+  type: "os_computerid",
+  message0: "ID черепашки",
+  output: "Number",
+  colour: "#FF9933",
+  tooltip: "Унікальний номер цієї черепашки/комп'ютера (число з гри)",
+  helpUrl: "",
+};
+
 const disk_getlabel = {
   type: "disk_getlabel",
   message0: "Get label of disk %1",
@@ -2832,6 +2867,10 @@ export const blockJsonArray = [
   args,
   shallow_copy,
   os_pullevent,
+
+  os_setlabel,
+  os_getlabel,
+  os_computerid,
 
   disk_ispresent,
   disk_getlabel,
