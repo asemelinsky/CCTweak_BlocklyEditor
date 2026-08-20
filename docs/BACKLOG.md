@@ -8,6 +8,75 @@
 
 ---
 
+## 0. Блок «Задати ім'я черепашці» 📋 🔴 P1
+
+**Контекст:** урок «З2 — Знайомство» для дітей потребує щоб перше що учень робить — це познайомитись з черепашкою: **дав їй ім'я**. Це методично важливо: черепашка стає «твоєю», а не абстрактним об'єктом.
+
+**Що зараз:** у toolbox з 8 категорій **немає** блоку для задавання ім'я комп'ютера/черепашки. Треба або вставляти raw `os.setComputerLabel("Мо")` через copy-paste з методички, або через категорію "Змінні" — і те й інше нечисто для дітей.
+
+**Технічно:** ComputerCraft API вже є:
+- `os.setComputerLabel(name)` — задати
+- `os.getComputerLabel()` — прочитати поточне (nullable)
+- Схожий блок вже реалізовано для дискет: `disk_setlabel` / `disk_getlabel` (src/blocks/computcraft.js:1257 + src/generators/lua.js:465). Скопіювати pattern.
+
+**Що зробити (мінімум):**
+
+1. Додати 2 нові блоки у `src/blocks/computcraft.js`:
+   ```js
+   const os_setlabel = {
+     type: "os_setlabel",
+     message0: "Задати ім'я черепашці %1",     // з i18n через dict.blockly.OS_SETLABEL
+     args0: [{ type: "input_value", name: "LABEL", check: "String" }],
+     previousStatement: null, nextStatement: null,
+     colour: <turtle_category color>,
+     tooltip: "Дати черепашці ім'я, яке буде видно у грі коли навести на неї",
+   };
+   const os_getlabel = {
+     type: "os_getlabel",
+     message0: "Ім'я черепашки",
+     output: "String",
+     colour: <turtle_category color>,
+     tooltip: "Прочитати поточне ім'я черепашки",
+   };
+   ```
+
+2. Додати generator у `src/generators/lua.js`:
+   ```js
+   forBlock["os_setlabel"] = (block, generator) => {
+     const label = generator.valueToCode(block, "LABEL", Order.NONE) || "'Мо'";
+     return `os.setComputerLabel(${label})\n`;
+   };
+   forBlock["os_getlabel"] = (block, generator) =>
+     [`(os.getComputerLabel() or '')`, Order.ATOMIC];
+   ```
+
+3. Додати у `src/toolbox.js` в категорію **«Будова»** (там уже є `turtle_select`, `turtle_detect` — керування станом), з shadow-текстом ім'я «Мо»:
+   ```js
+   { kind: "block", type: "os_setlabel", inputs: { LABEL: shadowText("Мо") } },
+   { kind: "block", type: "os_getlabel" },
+   ```
+
+4. Переклади у `src/i18n/uk.js` + `src/i18n/en.js`:
+   - `OS_SETLABEL: "Задати ім'я черепашці %1"` / `"Name the turtle %1"`
+   - `OS_GETLABEL: "Ім'я черепашки"` / `"Turtle name"`
+
+**Ефорт:** ~30 хв. Це майже copy-paste з disk_setlabel/getlabel.
+
+**TBD-питання до Олексія:**
+
+- **Q1. Куди у toolbox?**
+  - (a) додати у «🧱 Будова» (там уже turtle_select + turtle_detect — керування станом черепашки)
+  - (b) створити нову категорію «🐢 Черепашка» на самому верху — і зібрати туди `os_setlabel`, `os_getlabel`, `turtle.getFuelLevel()` (пальне), `os.computerID()` (номер) — тобто все про **саму черепашку як істоту**
+  - **Мій рек: (b)** — методично найясніше для дітей: перший урок «дай ім'я + подивись id + перевір пальне» = одна категорія. Але це +1 категорія до 8 (буде 9). Якщо це занадто — то (a).
+
+- **Q2. Shadow-текст:** «Мо» (дефолт з інтро-історії) чи порожньо (щоб учень сам придумав)? Рек: **«Мо»** — щоб можна було одразу перетягнути й запустити.
+
+- **Q3. Пари з блоком «прочитати ім'я»** (`os_getlabel`) чи тільки задати? Рек: **додати обидва** — методично корисно для уроку «Черепашка себе представляє: print('Привіт! Я — ' .. os.getComputerLabel())».
+
+- **Q4. Persistence:** `os.setComputerLabel` у ComputerCraft зберігається між перезавантаженнями (не втрачається при `reboot`). Це важливо знати методисту — можна раз задати ім'я і воно живе назавжди. Треба це відзначити у tooltip'і блоку?
+
+---
+
 ## 1. Прибрати ліву панель «дорослий Lua код» 📋 🔴 P1
 
 **Що зараз:** ліворуч від workspace показується панель з raw Lua-кодом що генерується з блоків.
